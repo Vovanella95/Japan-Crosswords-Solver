@@ -11,27 +11,142 @@
 		<converters:CageTypeToColorConverter x:Key="CageColorConverter"/>
 	</Page.Resources>
 	<Grid Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
-		<GridView Width="{Binding GridWidth}" Height="{Binding GridHeight}" ItemsSource="{Binding Cages}">
-			<GridView.ItemTemplate>
-				<DataTemplate>
-					<Grid Height="20" Width="20" Background="{Binding Converter={StaticResource CageColorConverter}}"/>
-				</DataTemplate>
-			</GridView.ItemTemplate>
-			<GridView.ItemContainerStyle>
-				<Style TargetType="GridViewItem">
-					<Setter Property="Margin" Value="0,0,0,0"/>
-					<Setter Property="Padding" Value="0"/>
-					<Setter Property="Background" Value="Red"/>
-					<Setter Property="Template">
-						<Setter.Value>
-							<ControlTemplate TargetType="GridViewItem">
-								<GridViewItemPresenter ContentMargin="0"/>
-							</ControlTemplate>
-						</Setter.Value>
-					</Setter>
-				</Style>
-			</GridView.ItemContainerStyle>
-		</GridView>
+		<Grid>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition />
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition/>
+			</Grid.RowDefinitions>
+
+			<GridView HorizontalAlignment="Left" 
+					  VerticalAlignment="Top" 
+					  Grid.Column="1" 
+					  Grid.Row="1" 
+					  Width="{Binding GridWidth}" 
+					  Height="{Binding GridHeight}" 
+					  ItemsSource="{Binding Cages}">
+				<GridView.ItemTemplate>
+					<DataTemplate>
+						<Grid Height="20" Width="20" Background="{Binding Converter={StaticResource CageColorConverter}}"/>
+					</DataTemplate>
+				</GridView.ItemTemplate>
+				<GridView.ItemContainerStyle>
+					<Style TargetType="GridViewItem">
+						<Setter Property="Margin" Value="0,0,0,0"/>
+						<Setter Property="Padding" Value="0"/>
+						<Setter Property="Template">
+							<Setter.Value>
+								<ControlTemplate TargetType="GridViewItem">
+									<GridViewItemPresenter ContentMargin="0"/>
+								</ControlTemplate>
+							</Setter.Value>
+						</Setter>
+					</Style>
+				</GridView.ItemContainerStyle>
+			</GridView>
+
+			<ListView Grid.Column="1" ItemsSource="{Binding TopNumbers}" 
+					  ScrollViewer.VerticalScrollBarVisibility="Disabled" 
+					  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+					  HorizontalAlignment="Left"
+					  VerticalAlignment="Top"
+					  ScrollViewer.HorizontalScrollMode="Enabled" 
+					  ScrollViewer.VerticalScrollMode="Disabled">
+				<ListView.ItemsPanel>
+					<ItemsPanelTemplate>
+						<StackPanel Background="Transparent" VerticalAlignment="Bottom" Orientation="Horizontal"/>
+					</ItemsPanelTemplate>
+				</ListView.ItemsPanel>
+				<ListView.ItemTemplate>
+					<DataTemplate>
+						<ListView ItemsSource="{Binding}" VerticalAlignment="Bottom">
+							<ListView.ItemTemplate>
+								<DataTemplate>
+									<TextBlock Text="{Binding}"/>
+								</DataTemplate>
+							</ListView.ItemTemplate>
+							<ListView.ItemContainerStyle>
+								<Style TargetType="ListViewItem">
+									<Setter Property="Margin" Value="0,0,0,0"/>
+									<Setter Property="Padding" Value="0"/>
+									<Setter Property="Width" Value="20"/>
+									<Setter Property="Template">
+										<Setter.Value>
+											<ControlTemplate TargetType="ListViewItem">
+												<ListViewItemPresenter ContentMargin="0"/>
+											</ControlTemplate>
+										</Setter.Value>
+									</Setter>
+								</Style>
+							</ListView.ItemContainerStyle>
+						</ListView>
+					</DataTemplate>
+				</ListView.ItemTemplate>
+				<ListView.ItemContainerStyle>
+					<Style TargetType="ListViewItem">
+						<Setter Property="Margin" Value="0,0,0,0"/>
+						<Setter Property="Padding" Value="0"/>
+						<Setter Property="Template">
+							<Setter.Value>
+								<ControlTemplate TargetType="ListViewItem">
+									<ListViewItemPresenter ContentMargin="0"/>
+								</ControlTemplate>
+							</Setter.Value>
+						</Setter>
+					</Style>
+				</ListView.ItemContainerStyle>
+			</ListView>
+
+			<ListView Grid.Row="1" ItemsSource="{Binding LeftNumbers}">
+				<ListView.ItemContainerStyle>
+					<Style TargetType="ListViewItem">
+						<Setter Property="Margin" Value="0,0,0,0"/>
+						<Setter Property="Padding" Value="0"/>
+						<Setter Property="Template">
+							<Setter.Value>
+								<ControlTemplate TargetType="ListViewItem">
+									<ListViewItemPresenter ContentMargin="0"/>
+								</ControlTemplate>
+							</Setter.Value>
+						</Setter>
+					</Style>
+				</ListView.ItemContainerStyle>
+				<ListView.ItemTemplate>
+					<DataTemplate>
+						<ListView ItemsSource="{Binding}" HorizontalAlignment="Right">
+							<ListView.ItemContainerStyle>
+								<Style TargetType="ListViewItem">
+									<Setter Property="Margin" Value="0,0,0,0"/>
+									<Setter Property="Padding" Value="0"/>
+									<Setter Property="Width" Value="20"/>
+									<Setter Property="Template">
+										<Setter.Value>
+											<ControlTemplate TargetType="ListViewItem">
+												<ListViewItemPresenter ContentMargin="0"/>
+											</ControlTemplate>
+										</Setter.Value>
+									</Setter>
+								</Style>
+							</ListView.ItemContainerStyle>
+							<ListView.ItemsPanel>
+								<ItemsPanelTemplate>
+									<StackPanel Background="Transparent" VerticalAlignment="Bottom" Orientation="Horizontal"/>
+								</ItemsPanelTemplate>
+							</ListView.ItemsPanel>
+							<TextBlock Text="{Binding}"/>
+						</ListView>
+					</DataTemplate>
+				</ListView.ItemTemplate>
+
+			</ListView>
+
+
+
+		</Grid>
+
 		<Button Command="{Binding MakeStep}" Content="Make Step" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
 	</Grid>
 </views:MvxWindowsPage>

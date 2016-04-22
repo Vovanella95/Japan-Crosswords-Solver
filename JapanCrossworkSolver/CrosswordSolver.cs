@@ -17,9 +17,19 @@ namespace JapanCrossworkSolver
 		{
 			get
 			{
-				return Cages.Cast<CageType>().Reverse().ToArray();
+				var transponesCages = new CageType[Width, Height];
+				for (int i = 0; i < Width; i++)
+				{
+					for (int j = 0; j < Height; j++)
+					{
+						transponesCages[j, i] = Cages[i, j];
+					}
+				}
+				return transponesCages.Cast<CageType>().ToArray();
 			}
 		}
+
+		private List<Func<CageType[], int[], CageType[]>> Methods;
 
 		public int[][] TopNumbers { get; set; }
 		public int[][] LeftNumbers { get; set; }
@@ -33,6 +43,19 @@ namespace JapanCrossworkSolver
 			Height = leftNumbers.GetLength(0);
 
 			Cages = new CageType[Height, Width];
+			Methods = new List<Func<CageType[], int[], CageType[]>>();
+
+			InitializeMethods();
+		}
+
+		private void InitializeMethods()
+		{
+			Methods.Add(Method0001);
+			Methods.Add(Method0002);
+			Methods.Add(Method0003_CheckForFullLines);
+			Methods.Add(Method0004_DrawOnSides);
+			Methods.Add(Method0005_CheckForMaxValues);
+			Methods.Add(Method0006_FillAllFreeWhiteToBlack);
 		}
 
 		public void MakeStep()
@@ -76,17 +99,17 @@ namespace JapanCrossworkSolver
 
 		public void ApplyAllToRow(int rowIndex)
 		{
-			ApplyMethodForRow(rowIndex, Method0001);
-			ApplyMethodForRow(rowIndex, Method0002);
-			ApplyMethodForRow(rowIndex, Method0003_CheckForFullLines);
-			ApplyMethodForRow(rowIndex, Method0004_DrawOnSides);
+			foreach (var method in Methods)
+			{
+				ApplyMethodForRow(rowIndex, method);
+			}
 		}
 		public void ApplyAllToColumn(int columnIndex)
 		{
-			ApplyMethodForColumn(columnIndex, Method0001);
-			ApplyMethodForColumn(columnIndex, Method0002);
-			ApplyMethodForColumn(columnIndex, Method0003_CheckForFullLines);
-			ApplyMethodForColumn(columnIndex, Method0004_DrawOnSides);
+			foreach (var method in Methods)
+			{
+				ApplyMethodForColumn(columnIndex, method);
+			}
 		}
 
 		public bool IsCompleted()
@@ -105,7 +128,7 @@ namespace JapanCrossworkSolver
 		}
 
 
-		// Simple drawing cages in lines using first rule
+		// Самый простой метод считает справа и слева числа и заполняет
 		public CageType[] Method0001(CageType[] cages, int[] numbers)
 		{
 			var l = numbers.Sum() + numbers.Length - 1;
@@ -131,6 +154,7 @@ namespace JapanCrossworkSolver
 			return cages;
 		}
 
+		// Если скраю поля черная клетка - дорисовывает число начиная с нее
 		public CageType[] Method0002(CageType[] cages, int[] numbers)
 		{
 			if (cages[0] == CageType.Black)
@@ -147,19 +171,20 @@ namespace JapanCrossworkSolver
 
 			if (cages[cages.Length - 1] == CageType.Black)
 			{
-				for (int i = 0; i < numbers[0]; i++)
+				for (int i = 0; i < numbers[numbers.Length - 1]; i++)
 				{
 					cages[cages.Length - 1 - i] = CageType.Black;
 				}
-				if (cages.Length >= numbers[0])
+				if (cages.Length >= numbers[numbers.Length - 1])
 				{
-					cages[cages.Length - 1 - numbers[0]] = CageType.Point;
+					cages[cages.Length - 1 - numbers[numbers.Length - 1]] = CageType.Point;
 				}
 			}
 
 			return cages;
 		}
 
+		// Проверяет если полоса зарисована - доставляет точки в пустые клетки
 		public CageType[] Method0003_CheckForFullLines(CageType[] cages, int[] numbers)
 		{
 			var coloredCount = cages.Where(w => w == CageType.Black).Count();
@@ -178,16 +203,35 @@ namespace JapanCrossworkSolver
 			return cages;
 		}
 
+		// Дорисовывает черные линии по краям если они немножко помещаются
 		public CageType[] Method0004_DrawOnSides(CageType[] cages, int[] numbers)
 		{
-			// leftSide
 			var firstPoint = 0;
 			while (firstPoint < cages.Length && cages[firstPoint] != CageType.Point)
 			{
 				firstPoint++;
 			}
 
-			if (numbers[0] * 2 > firstPoint - 1 && numbers[0] <= firstPoint)
+			if (firstPoint > 0 && cages[firstPoint - 1] == CageType.Black && numbers[0] * 2 > firstPoint - 1 && numbers[0] <= firstPoint)
+			{
+				var skipIndex = firstPoint - numbers[0];
+				for (int i = 0; i < 2 * numbers[0] - firstPoint; i++)
+				{
+					cages[skipIndex] = CageType.Black;
+					skipIndex++;
+				}
+			}
+
+			cages = cages.Reverse().ToArray();
+			numbers = numbers.Reverse().ToArray();
+
+			firstPoint = 0;
+			while (firstPoint < cages.Length && cages[firstPoint] != CageType.Point)
+			{
+				firstPoint++;
+			}
+
+			if (firstPoint > 0 && cages[firstPoint - 1] == CageType.Black && numbers[0] * 2 > firstPoint - 1 && numbers[0] <= firstPoint)
 			{
 				var skipIndex = firstPoint - numbers[0];
 				for (int i = 0; i < 2 * numbers[0] - firstPoint; i++)
@@ -199,7 +243,97 @@ namespace JapanCrossworkSolver
 
 
 
+
+			return cages.Reverse().ToArray();
+		}
+
+		// Если на линии есть n черных подряд а в числах нет числа больше n то по краям ставятся точки
+		public CageType[] Method0005_CheckForMaxValues(CageType[] cages, int[] numbers)
+		{
+			var maxValue = numbers.Max();
+
+			var tempLengthCounter = 0;
+			var tempIndexCounter = 0;
+			var isFound = false;
+			for (int i = 0; i < cages.Length; i++)
+			{
+				if (cages[i] == CageType.Black)
+				{
+					if (!isFound)
+					{
+						tempIndexCounter = i;
+						tempLengthCounter = 1;
+						isFound = true;
+					}
+					else
+					{
+						tempLengthCounter++;
+					}
+				}
+				else
+				{
+					if (tempLengthCounter == maxValue)
+					{
+						if (i != cages.Length - 1)
+						{
+							cages[i] = CageType.Point;
+						}
+						if (tempIndexCounter != 0)
+						{
+							cages[tempIndexCounter - 1] = CageType.Point;
+						}
+					}
+					tempLengthCounter = 0;
+					isFound = false;
+				}
+			}
 			return cages;
+		}
+
+		// Если на линии можно зарисовать не точки черными клетками и все совпадет
+		public CageType[] Method0006_FillAllFreeWhiteToBlack(CageType[] cages, int[] numbers)
+		{
+			var freeCount = cages.Where(w => w != CageType.Point).Count();
+			if (freeCount == numbers.Sum())
+			{
+				for (int i = 0; i < cages.Length; i++)
+				{
+					if (cages[i] == CageType.White)
+					{
+						cages[i] = CageType.Black;
+					}
+				}
+			}
+			return cages;
+		}
+
+		public CageType[] Method0007_PointsForBigNumbersOnSides(CageType[] cages, int[] numbers)
+		{
+			var leftNumber = numbers[0];
+
+			var blackIndex = 0;
+			var blackCount = 0;
+			for (int i = 0; i < cages.Length; i++)
+			{
+				if (cages[i] == CageType.Black)
+				{
+					blackIndex = i;
+				}
+				if(cages[i] != CageType.Black)
+				{
+					if(blackIndex != 0)
+					{
+						
+					}
+				}
+			}
+
+			if (blackIndex <= leftNumber)
+			{
+
+			}
+
+			throw new NotImplementedException();
 		}
 	}
 }

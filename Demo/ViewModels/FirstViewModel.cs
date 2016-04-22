@@ -1,6 +1,7 @@
 using JapanCrossworkSolver;
 using JapanCrossworkSolver.Models;
 using MvvmCross.Core.ViewModels;
+using System.Threading.Tasks;
 
 namespace Demo.ViewModels
 {
@@ -47,27 +48,64 @@ namespace Demo.ViewModels
 			}
 		}
 
+		private int[][] _topNumbers;
+		public int[][] TopNumbers
+		{
+			get
+			{
+				return _topNumbers;
+			}
+			set
+			{
+				SetProperty(ref _topNumbers, value);
+			}
+		}
+
+		private int[][] _leftNumbers;
+		public int[][] LeftNumbers
+		{
+			get
+			{
+				return _leftNumbers;
+			}
+			set
+			{
+				SetProperty(ref _leftNumbers, value);
+			}
+		}
 
 		public FirstViewModel()
 		{
-			_solver = new CrosswordSolver(new int[][] { new[] { 2 }, new[] { 1, 2 }, new[] { 1, 1 }, new[] { 3 }, new[] { 1 } },
-										  new int[][] { new[] { 1 }, new[] { 1 }, new[] { 1, 1 }, new[] { 2, 1 }, new[] { 4 } });
+			TopNumbers = new int[][] { new[] { 5 }, new[] { 1, 1 }, new[] { 2, 1 }, new[] { 1, 3 }, new[] { 3, 2 }, new[] { 1, 1, 2, 2 }, new[] { 3, 2, 2 }, new[] { 1, 3, 1 }, new[] { 1 }, new[] { 6 } };
+			LeftNumbers = new int[][] { new[] { 2, 3 }, new[] { 1, 1 }, new[] { 1, 3 }, new[] { 1, 1 }, new[] { 1, 6, 1 }, new[] { 1, 3, 1 }, new[] { 2, 1, 1, 1 }, new[] { 1, 1 }, new[] { 4, 1 }, new[] { 6 } };
+
+			_solver = new CrosswordSolver(TopNumbers, LeftNumbers);
+
 			Cages = _solver.ArrayOfCages;
 
-			GridHeight = _solver.Height * 25;
-			GridWidth = _solver.Width * 25;
+			GridHeight = _solver.Height * 21;
+			GridWidth = _solver.Width * 21;
 		}
 
 		public IMvxCommand MakeStep
 		{
 			get
 			{
-				return new MvxCommand(() =>
-				{
-					_solver.MakeStep();
-					Cages = _solver.ArrayOfCages;
-				});
+				return new MvxCommand(MakeStepAsync);
 			}
+		}
+
+		private async void MakeStepAsync()
+		{
+			await MakeStepTask();
+		}
+		private Task MakeStepTask()
+		{
+			return Task.Run(() =>
+			{
+				_solver.MakeStep();
+				Cages = _solver.ArrayOfCages;
+			});
 		}
 	}
 }
