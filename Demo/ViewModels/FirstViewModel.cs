@@ -76,8 +76,11 @@ namespace Demo.ViewModels
 
 		public FirstViewModel()
 		{
-			TopNumbers = new int[][] { new[] { 4 }, new[] { 2, 2, 1 }, new[] { 1, 2, 1, 1 }, new[] { 1, 1, 1, 1, 1 }, new[] { 1, 1, 1, 1, 1 }, new[] { 1, 1, 1, 1, 1 }, new[] { 1, 1, 1, 1 }, new[] { 1, 1, 1, 1 }, new[] { 1, 1, 5 }, new[] { 3, 1 }, };
-			LeftNumbers = new int[][] { new[] { 7 }, new[] { 1,1 }, new[] { 1,1 }, new[] { 8 }, new[] { 1,1 }, new[] { 9 }, new[] { 1,1 }, new[] { 1,3,1 }, new[] { 1,2 }, new[] { 8 }, };
+			TopNumbers = new int[][] { new[] { 2, 2 }, new[] { 2, 2 }, new[] { 3, 5 }, new[] { 5, 2, 2 }, new[] { 2, 5, 1 }, new[] { 1, 2, 1, 1 }, new[] { 1, 1, 2, 2, 1 }, new[] { 1, 6, 1 }, new[] { 2, 2, 3, 1 }, new[] { 1, 2, 1, 1, 2 }, new[] { 3, 1, 2 }, new[] { 1, 1, 4 }, new[] { 4, 2 }, };
+			LeftNumbers = new int[][] { new[] { 5 }, new[] { 2, 4 }, new[] { 1, 1, 1 }, new[] { 1, 3, 2 }, new[] { 5, 2 }, new[] { 5, 2 }, new[] { 4 }, new[] { 2, 2, 2 }, new[] { 1, 4, 1 }, new[] { 1, 4, 1 }, new[] { 1, 4, 2 }, new[] { 1, 1 }, new[] { 4, 4 }, new[] { 13 }, };
+
+			//TopNumbers = new int[][] { new[] { 10 }, new[] { 3,2 }, new[] { 2, 1 }, new[] { 1,4 }, new[] { 1,1,5 }, new[] { 1,2,2 }, new[] { 1,6 }, new[] { 8 }, new[] { 6 }, new[] { 4 }, };
+			//LeftNumbers = new int[][] { new[] { 7 }, new[] { 3,1 }, new[] { 2,1,2 }, new[] { 1,3 }, new[] { 1,4 }, new[] { 1,6 }, new[] { 1,7 }, new[] { 1,2,3 }, new[] { 2,5 }, new[] { 7 }, };
 
 			_solver = new CrosswordSolver(TopNumbers, LeftNumbers);
 
