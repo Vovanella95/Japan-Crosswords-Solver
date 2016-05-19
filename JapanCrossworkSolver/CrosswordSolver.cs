@@ -54,21 +54,25 @@ namespace JapanCrossworkSolver
 		{
 			Methods.Add(Method0001);
 			Methods.Add(Method0002);
-			Methods.Add(Method0003_CheckForFullLines);
-			Methods.Add(Method0004_DrawOnSides);
-			Methods.Add(Method0004_DrawOnSidesReversed);
-			Methods.Add(Method0005_CheckForMaxValues);
-			Methods.Add(Method0006_FillAllFreeWhiteToBlack);
-			Methods.Add(Method0007_UpDrawOneNumber);
-			Methods.Add(Method0008_PickPointsWhereCannotBeBlack);
-			Methods.Add(Method0009_FindMaxValueAndPickPoints);
-			Methods.Add(Method0010_FillMinSpacesBetweenPoints);
-			Methods.Add(Method0011_DrawLinesIfItHaveBegin);
-			Methods.Add(Method0012_DrawBeginIfIsItBegin);
+			Methods.Add(Method0003);
+			Methods.Add(Method0004);
+			Methods.Add(Method0005);
+			Methods.Add(Method0006);
+			Methods.Add(Method0007);
+			Methods.Add(Method0008);
+			Methods.Add(Method0009);
+			Methods.Add(Method0010);
+			Methods.Add(Method0011);
+			Methods.Add(Method0012);
 		}
 
 		public void MakeStep()
 		{
+			var a = TopNumbers.Sum(w => w.Sum());
+			var b = LeftNumbers.Sum(w => w.Sum());
+
+
+
 			for (int i = 0; i < Height; i++)
 			{
 				ApplyAllToRow(i);
@@ -86,6 +90,11 @@ namespace JapanCrossworkSolver
 			{
 				row[i] = Cages[rowIndex, i];
 			}
+
+			if (row.All(w => w != CageType.White))
+			{
+				return;
+			}
 			row = ApplyMethodForLine(row, LeftNumbers[rowIndex], method);
 			for (int i = 0; i < Width; i++)
 			{
@@ -99,6 +108,11 @@ namespace JapanCrossworkSolver
 			for (int i = 0; i < Height; i++)
 			{
 				column[i] = Cages[i, columnIndex];
+			}
+
+			if (column.All(w => w != CageType.White))
+			{
+				return;
 			}
 			column = ApplyMethodForLine(column, TopNumbers[columnIndex], method);
 			for (int i = 0; i < Height; i++)
@@ -139,96 +153,88 @@ namespace JapanCrossworkSolver
 
 		private CageType[] ApplyMethodForLine(CageType[] cages, int[] numbers, Func<CageType[], int[], CageType[]> method)
 		{
-			if (Cages[0, 7] == CageType.Black)
-			{
-
-			}
-
 			if (cages.All(w => w != CageType.White))
 			{
 				return method(cages, numbers);
 			}
 
 			int startIndex = 0;
-			int endIndex = cages.Length - 1;
-			for (int i = 0; i < cages.Length - 1 && cages[i] != CageType.White; i++)
+			while (cages[startIndex] != CageType.White)
 			{
 				startIndex++;
 			}
-			for (int i = cages.Length - 1; i >= 0 && cages[i] != CageType.White; i--)
+			if (startIndex > 0 && cages[startIndex - 1] == CageType.Black)
 			{
-				endIndex--;
-			}
-
-			if (startIndex != 0 && cages[startIndex - 1] == CageType.Black)
-			{
-				for (int i = startIndex; i > 0 && cages[i - 1] == CageType.Black; i--)
+				while (startIndex > 0 && cages[startIndex - 1] == CageType.Black)
 				{
 					startIndex--;
 				}
 			}
 
-			if (endIndex != cages.Length - 1 && cages[endIndex + 1] == CageType.Black)
-			{
-				for (int i = endIndex; i < cages.Length - 1 && cages[i + 1] == CageType.Black; i++)
-				{
-					endIndex++;
-				}
-			}
-
-
-			int startCount = 0;
-			bool isBlack = false;
+			int startNumbers = 0;
+			bool ifBlack = false;
 			for (int i = 0; i < startIndex; i++)
 			{
 				if (cages[i] == CageType.Black)
 				{
-					if (!isBlack)
+					if (!ifBlack)
 					{
-						startCount++;
+						startNumbers++;
 					}
-					isBlack = true;
+					ifBlack = true;
 				}
-				else
+				if (cages[i] == CageType.Point)
 				{
-					isBlack = false;
+					ifBlack = false;
 				}
 			}
 
+			cages = cages.Reverse().ToArray();
 
-			int endCount = 0;
-			isBlack = false;
-			for (int i = cages.Length - 1; i > endIndex; i--)
+			int endIndex = 0;
+			while (cages[endIndex] != CageType.White)
+			{
+				endIndex++;
+			}
+			if (endIndex > 0 && cages[endIndex - 1] == CageType.Black)
+			{
+				while (endIndex > 0 && cages[endIndex - 1] == CageType.Black)
+				{
+					endIndex--;
+				}
+			}
+
+			int endNumbers = 0;
+			ifBlack = false;
+			for (int i = 0; i < endIndex; i++)
 			{
 				if (cages[i] == CageType.Black)
 				{
-					if (!isBlack)
+					if (!ifBlack)
 					{
-						endCount++;
+						endNumbers++;
 					}
-					isBlack = true;
+					ifBlack = true;
 				}
-				else
+				if (cages[i] == CageType.Point)
 				{
-					isBlack = false;
+					ifBlack = false;
 				}
 			}
 
+			cages = cages.Reverse().ToArray();
 
-			var newCages = cages.Skip(startIndex).Take(endIndex - startIndex + 1).ToArray();
-			var newNumbers = numbers.Skip(startCount).Take(numbers.Length - startCount - endCount).ToArray();
+			var newCages = cages.Skip(startIndex).Take(cages.Length - (startIndex + endIndex));
+			var newNumbers = numbers.Skip(startNumbers).Take(numbers.Length - (startNumbers + endNumbers));
 
-			if (newCages.Length == 0 || newNumbers.Length == 0)
+			var result = method(newCages.ToArray(), newNumbers.ToArray());
+			result = method(result.Reverse().ToArray(), newNumbers.Reverse().ToArray()).Reverse().ToArray();
+
+			for (int i = 0; i < cages.Length - (endIndex + startIndex); i++)
 			{
-				return method(cages, numbers);
+				cages[i + startIndex] = result[i];
 			}
 
-
-			newCages = method(newCages, newNumbers);
-			for (int i = startIndex; i <= endIndex; i++)
-			{
-				cages[i] = newCages[i - startIndex];
-			}
 			return cages;
 		}
 
@@ -236,6 +242,16 @@ namespace JapanCrossworkSolver
 		// Самый простой метод считает справа и слева числа и заполняет
 		public CageType[] Method0001(CageType[] cages, int[] numbers)
 		{
+			CageType[] oldCages = new CageType[cages.Length];
+			Array.Copy(cages, oldCages, cages.Length);
+
+			if (numbers.Length == 1 && (cages.Length < numbers[0]))
+			{
+				CompareCages(oldCages, cages, "1", numbers);
+				return cages;
+			}
+
+
 			var l = numbers.Sum() + numbers.Length - 1;
 			var L = cages.Length;
 			var n = L - l;
@@ -246,7 +262,12 @@ namespace JapanCrossworkSolver
 				if (number > n)
 				{
 					int skipedIndex = counter + n;
-					for (int i = 0; i < number - n; i++)
+					if (skipedIndex < 0)
+					{
+						CompareCages(oldCages, cages, "1", numbers);
+						return cages;
+					}
+					for (int i = 0; i >= 0 && i < number - n; i++)
 					{
 						cages[skipedIndex] = CageType.Black;
 						skipedIndex++;
@@ -255,47 +276,38 @@ namespace JapanCrossworkSolver
 				}
 				counter += (1 + number);
 			}
-
+			CompareCages(oldCages, cages, "1", numbers);
 			return cages;
 		}
 
-		// Если скраю поля черная клетка - дорисовывает число начиная с нее
+		// дорисовывает черные клетки по крафм
 		public CageType[] Method0002(CageType[] cages, int[] numbers)
 		{
-			if (cages[0] == CageType.Black)
+			if (cages.Length == 0 || numbers.Length == 0) return cages;
+
+			var number = numbers.First();
+
+			bool isHaveBlack = false;
+			for (int i = 0; i < number; i++)
 			{
-				for (int i = 0; i < numbers[0]; i++)
+				if (cages[i] == CageType.Black)
+				{
+					isHaveBlack = true;
+				}
+				if (isHaveBlack)
 				{
 					cages[i] = CageType.Black;
 				}
-				if (cages.Length > numbers[0])
-				{
-					cages[numbers[0]] = CageType.Point;
-				}
 			}
-
-			if (cages[cages.Length - 1] == CageType.Black)
-			{
-				for (int i = 0; i < numbers[numbers.Length - 1]; i++)
-				{
-					cages[cages.Length - 1 - i] = CageType.Black;
-				}
-				if (cages.Length > numbers[numbers.Length - 1])
-				{
-					cages[cages.Length - 1 - numbers[numbers.Length - 1]] = CageType.Point;
-				}
-			}
-
 			return cages;
 		}
 
-		// Проверяет если полоса зарисована - доставляет точки в пустые клетки
-		public CageType[] Method0003_CheckForFullLines(CageType[] cages, int[] numbers)
+		// если число черных равно числу чисел то все белые - точки
+		public CageType[] Method0003(CageType[] cages, int[] numbers)
 		{
-			var coloredCount = cages.Where(w => w == CageType.Black).Count();
-			var numbersCount = numbers.Sum();
-
-			if (coloredCount == numbersCount)
+			var blackCount = cages.Where(w => w == CageType.Black).Count();
+			var numSum = numbers.Sum();
+			if (numSum == blackCount)
 			{
 				for (int i = 0; i < cages.Length; i++)
 				{
@@ -308,337 +320,244 @@ namespace JapanCrossworkSolver
 			return cages;
 		}
 
-		// Дорисовывает черные линии по краям если они немножко помещаются
-		public CageType[] Method0004_DrawOnSides(CageType[] cages, int[] numbers)
+		// ставит точки по бокам большого единственного в строке числа
+		public CageType[] Method0004(CageType[] cages, int[] numbers)
 		{
-			if (cages[1] == CageType.Black && numbers[0] == 1)
+			if (numbers.Length != 1 || cages.Where(w => w == CageType.Black).Count() == 0)
 			{
-				cages[0] = CageType.Point;
 				return cages;
 			}
+			var number = numbers[0];
 
-			if (cages[0] == CageType.Black || cages[cages.Length - 1] == CageType.Black) return cages;
+			int firstBlackIndex = -1;
+			int lastBlackIndex = 0;
 
-			int pointIndex = 0;
-			var isHaveBlack = false;
-			for (int i = 0; i < cages.Length && cages[i] != CageType.Point; i++)
+			for (int i = 0; i < cages.Length; i++)
 			{
 				if (cages[i] == CageType.Black)
 				{
-					isHaveBlack = true;
+					lastBlackIndex = i;
+					if (firstBlackIndex == -1)
+					{
+						firstBlackIndex = i;
+					}
 				}
-				pointIndex++;
 			}
-			if (!isHaveBlack) return cages;
-			int number = numbers[0];
 
-			var neededNumber = pointIndex / 2 + 1;
-			if (number < neededNumber) return cages;
 
-			var endIndex = number;
-			var startIndex = pointIndex - number;
-			for (int i = startIndex; i >= 0 && i < endIndex; i++)
+			var startPoint = lastBlackIndex - number + 1;
+			for (int i = 0; i < startPoint; i++)
+			{
+				cages[i] = CageType.Point;
+			}
+
+			var endPoint = firstBlackIndex + number;
+			for (int i = endPoint; i < cages.Length; i++)
+			{
+				cages[i] = CageType.Point;
+			}
+			return cages;
+		}
+
+		// если в строке одно число разбито - объединяет клетки
+		public CageType[] Method0005(CageType[] cages, int[] numbers)
+		{
+			if (numbers.Length != 1 || cages.Where(w => w == CageType.Black).Count() == 0)
+			{
+				return cages;
+			}
+			var number = numbers[0];
+
+			int firstBlackIndex = -1;
+			int lastBlackIndex = 0;
+
+			for (int i = 0; i < cages.Length; i++)
+			{
+				if (cages[i] == CageType.Black)
+				{
+					lastBlackIndex = i;
+					if (firstBlackIndex == -1)
+					{
+						firstBlackIndex = i;
+					}
+				}
+			}
+
+			for (int i = firstBlackIndex + 1; i <= lastBlackIndex; i++)
 			{
 				cages[i] = CageType.Black;
 			}
 			return cages;
 		}
 
-		public CageType[] Method0004_DrawOnSidesReversed(CageType[] cages, int[] numbers)
+		// ставит точки после чисел по краям
+		public CageType[] Method0006(CageType[] cages, int[] numbers)
 		{
-			return Method0004_DrawOnSides(cages.Reverse().ToArray(), numbers.Reverse().ToArray()).Reverse().ToArray();
+			if (numbers[0] < cages.Length && cages[0] == CageType.Black)
+			{
+				cages[numbers[0]] = CageType.Point;
+			}
+			return cages;
 		}
 
-		// Если на линии есть n черных подряд а в числах нет числа больше n то по краям ставятся точки
-		public CageType[] Method0005_CheckForMaxValues(CageType[] cages, int[] numbers)
+		// если есть точка+черная, то дорисовывает ее до минимального числа
+		public CageType[] Method0007(CageType[] cages, int[] numbers)
 		{
-			if (numbers.Length == 0)
-			{
-				return cages;
-			}
-			var maxValue = numbers.Max();
+			if (cages.Length == 0 || numbers.Length == 0) return cages;
 
-			if (maxValue == 1)
+			var minNumber = numbers.Min();
+			for (int i = 0; i < cages.Length - 1; i++)
 			{
-				for (int i = 1; i < cages.Length - 1; i++)
+				if (cages[i] == CageType.Point && cages[i + 1] == CageType.Black)
 				{
-					if (cages[i] == CageType.Black)
+					for (int j = 0; j < minNumber; j++)
 					{
-						cages[i - 1] = CageType.Point;
-						cages[i + 1] = CageType.Point;
+						cages[i + j + 1] = CageType.Black;
 					}
 				}
-				if (cages[0] == CageType.Black) cages[1] = CageType.Point;
-				if (cages[cages.Length - 1] == CageType.Black) cages[cages.Length - 2] = CageType.Point;
-				return cages;
+			}
+			return cages;
+		}
+
+		// если между точками нельзя вместить клетки - то там клетки
+		public CageType[] Method0008(CageType[] cages, int[] numbers)
+		{
+			if (cages.Length == 0 || numbers.Length == 0) return cages;
+
+			var minNumber = numbers.Min();
+			if (minNumber == 2)
+			{
+
 			}
 
-			var tempLengthCounter = 0;
-			var tempIndexCounter = 0;
-			var isFound = false;
+			if (minNumber < 2) return cages;
+
+			var tempCounter = 0;
+			var isWhite = false;
 			for (int i = 0; i < cages.Length; i++)
 			{
-				if (cages[i] == CageType.Black)
+				if (cages[i] != CageType.Point)
 				{
-					if (!isFound)
-					{
-						tempIndexCounter = i;
-						tempLengthCounter = 1;
-						isFound = true;
-					}
-					else
-					{
-						tempLengthCounter++;
-					}
+					isWhite = true;
+					tempCounter++;
+					continue;
 				}
-				else
+				if (cages[i] == CageType.Point)
 				{
-					if (tempLengthCounter == maxValue)
+					if (isWhite && tempCounter < minNumber)
 					{
-
-						cages[i] = CageType.Point;
-
-						if (tempIndexCounter + i < cages.Length)
+						for (int j = 0; j < tempCounter; j++)
 						{
-							cages[tempIndexCounter + i] = CageType.Point;
+							cages[i - j - 1] = CageType.Point;
 						}
 					}
-					tempLengthCounter = 0;
-					isFound = false;
+					isWhite = false;
+					tempCounter = 0;
 				}
 			}
+
 			return cages;
 		}
 
-		// Если на линии можно зарисовать не точки черными клетками и все совпадет
-		public CageType[] Method0006_FillAllFreeWhiteToBlack(CageType[] cages, int[] numbers)
+		// если в строке максимальное число черных подряд - по бокам ставятся точки
+		public CageType[] Method0009(CageType[] cages, int[] numbers)
 		{
-			var freeCount = cages.Where(w => w != CageType.Point).Count();
-			if (freeCount == numbers.Sum())
-			{
-				for (int i = 0; i < cages.Length; i++)
-				{
-					if (cages[i] == CageType.White)
-					{
-						cages[i] = CageType.Black;
-					}
-				}
-			}
-			return cages;
-		}
+			if (cages.Length == 0 || numbers.Length == 0) return cages;
 
-		// Дорисовывает число если оно одно в линейке
-		public CageType[] Method0007_UpDrawOneNumber(CageType[] cages, int[] numbers)
-		{
-			if (numbers.Length > 1 || cages.All(w => w != CageType.Black))
-			{
-				return cages;
-			}
+			var max = numbers.Max();
 
-			int index = 0;
+			var isBlask = false;
+			var tempCounter = 0;
 			for (int i = 0; i < cages.Length; i++)
 			{
 				if (cages[i] == CageType.Black)
 				{
-					index = i;
+					isBlask = true;
+					tempCounter++;
+				}
+				if (cages[i] != CageType.Black)
+				{
+					if (isBlask && tempCounter == max)
+					{
+						cages[i] = CageType.Point;
+						if (i - max - 1 >= 0)
+						{
+							cages[i - max - 1] = CageType.Point;
+						}
+					}
+					isBlask = false;
+					tempCounter = 0;
+				}
+			}
+			return cages;
+		}
+
+		// решает сложную задачу по краям (возможны ошибки)
+		public CageType[] Method0010(CageType[] cages, int[] numbers)
+		{
+			if (cages.Length == 0 || numbers.Length == 0) return cages;
+
+			var firstPoint = -1;
+			var isBeenBlack = false;
+			for (int i = 0; i < cages.Length; i++)
+			{
+				if (cages[i] == CageType.Black)
+				{
+					isBeenBlack = true;
+				}
+				if (cages[i] == CageType.Point)
+				{
+					firstPoint = i;
 					break;
 				}
 			}
 
-			for (int i = 0; i < cages.Length; i++)
+			var minNumber = firstPoint / 2 + 1;
+			if (firstPoint == -1 || numbers[0] < minNumber || !isBeenBlack) return cages;
+
+			var endIndex = numbers[0];
+			var startIndex = firstPoint - numbers[0];
+			for (int i = startIndex; i < endIndex; i++)
 			{
-				if (numbers[0] <= Math.Abs(index - i))
-				{
-					cages[i] = CageType.Point;
-				}
+				cages[i] = CageType.Black;
 			}
 			return cages;
 		}
 
-		// рисует точки там, где если будет черная клетка - будет слишком много черных подряд
-		public CageType[] Method0008_PickPointsWhereCannotBeBlack(CageType[] cages, int[] numbers)
+		// расставляет зачатки черных по краям
+		public CageType[] Method0011(CageType[] cages, int[] numbers)
 		{
-			var maxInt = numbers.Max();
+			if (cages.Length == 0 || numbers.Length == 0) return cages;
 
-			for (int i = 0; i < cages.Length; i++)
+			var number = numbers[0];
+			for (int i = 0; i < number; i++)
 			{
-				if (cages[i] == CageType.White)
+				if (cages[i] == CageType.Black)
 				{
-					CageType[] newCages = new CageType[cages.Length];
-					Array.Copy(cages, newCages, cages.Length);
-					newCages[i] = CageType.Black;
-
-					var maxLength = MaxValueOnLine(newCages);
-					if (maxLength > maxInt)
+					while (i < cages.Length && cages[i] == CageType.Black)
 					{
-						cages[i] = CageType.Point;
-					}
-				}
-			}
-
-
-			return cages;
-		}
-
-		// если по краям большие числа иногда можно поставить точки вне их досягаемости
-		public CageType[] Method0009_FindMaxValueAndPickPoints(CageType[] cages, int[] numbers)
-		{
-			var maxOnLine = MaxValueOnLine(cages);
-
-			if (numbers[0] == numbers.Max() && numbers.Where(w => w >= maxOnLine).Count() == 1 && maxOnLine < numbers[0])
-			{
-				var blackEndIndex = 0;
-				var isBeenBlack = false;
-				for (int i = 0; i < cages.Length; i++)
-				{
-					if (cages[i] == CageType.Black)
-					{
-						isBeenBlack = true;
-					}
-					if (isBeenBlack && cages[i] != CageType.Black)
-					{
-						blackEndIndex = i;
-						break;
-					}
-				}
-				var startBlackIndex = blackEndIndex - numbers[0];
-				for (int i = 0; i < startBlackIndex; i++)
-				{
-					cages[i] = CageType.Point;
-				}
-			}
-			return cages;
-		}
-
-		// если между двумя точками нет черных точек и расстояние мало для помещения числа то ставим точки
-		public CageType[] Method0010_FillMinSpacesBetweenPoints(CageType[] cages, int[] numbers)
-		{
-			var minNumber = numbers.Min();
-
-			int startPoint = -1;
-			int endPoint = 0;
-
-			for (int i = 0; i < cages.Length; i++)
-			{
-				if (cages[i] == CageType.Point)
-				{
-					endPoint = i;
-					if (i - startPoint > minNumber)
-					{
-
-					}
-					else
-					{
-						var isHaveBlack = false;
-						for (int j = startPoint + 1; j < endPoint; j++)
+						var index = i - number;
+						if (index >= 0)
 						{
-							if (cages[i] == CageType.Black)
-							{
-								isHaveBlack = true;
-							}
+							cages[index] = CageType.Point;
 						}
-						if (!isHaveBlack)
-						{
-							for (int j = startPoint + 1; j < endPoint; j++)
-							{
-								cages[j] = CageType.Point;
-							}
-						}
+						i++;
 					}
-					startPoint = i;
+					break;
 				}
 			}
 			return cages;
 		}
 
-		public CageType[] Method0011_DrawLinesIfItHaveBegin(CageType[] cages, int[] numbers)
+		public CageType[] Method0012(CageType[] cages, int[] numbers)
 		{
-			var firstNumber = numbers[0];
-			var isHaveBegin = false;
-			for (int i = 0; i < firstNumber - 1; i++)
+			if (cages.Length == 0 || numbers.Length == 0) return cages;
+			if (cages.Length > numbers[0] && cages[numbers[0]] == CageType.Black)
 			{
-				if (cages[i] == CageType.Black)
-				{
-					isHaveBegin = true;
-				}
+				cages[0] = CageType.Point;
 			}
-			var isWasBegin = false;
-			for (int i = 0; i < firstNumber; i++)
-			{
-				if (cages[i] == CageType.Black)
-				{
-					isWasBegin = true;
-				}
-				if (isWasBegin)
-				{
-					cages[i] = CageType.Black;
-				}
-			}
-
-			cages = cages.Reverse().ToArray();
-			firstNumber = numbers.Last();
-			isHaveBegin = false;
-			for (int i = 0; i < firstNumber - 1; i++)
-			{
-				if (cages[i] == CageType.Black)
-				{
-					isHaveBegin = true;
-				}
-			}
-			isWasBegin = false;
-			for (int i = 0; i < firstNumber; i++)
-			{
-				if (cages[i] == CageType.Black)
-				{
-					isWasBegin = true;
-				}
-				if (isWasBegin)
-				{
-					cages[i] = CageType.Black;
-				}
-			}
-
-
-			return cages.Reverse().ToArray();
+			return cages;
 		}
-
-		public CageType[] Method0012_DrawBeginIfIsItBegin(CageType[] cages, int[] numbers)
-		{
-			var minNumber = numbers.Min();
-
-			var isPreviousCage = false;
-			for (int i = 0; i < cages.Length; i++)
-			{
-				if (cages[i] == CageType.Black && isPreviousCage)
-				{
-					for (int j = i; j < minNumber + i; j++)
-					{
-						cages[j] = CageType.Black;
-					}
-				}
-				isPreviousCage = cages[i] == CageType.Point;
-			}
-
-
-			cages = cages.Reverse().ToArray();
-
-
-			isPreviousCage = false;
-			for (int i = 0; i < cages.Length; i++)
-			{
-				if (cages[i] == CageType.Black && isPreviousCage)
-				{
-					for (int j = i; j < minNumber + i; j++)
-					{
-						cages[j] = CageType.Black;
-					}
-				}
-				isPreviousCage = cages[i] == CageType.Point;
-			}
-
-			return cages.Reverse().ToArray();
-		}
-
 
 		#region HelpFunctions
 
@@ -667,6 +586,16 @@ namespace JapanCrossworkSolver
 			return totalCounter;
 		}
 
+		private void CompareCages(CageType[] oldCages, CageType[] newCages, string method, int[] numbers)
+		{
+			for (int i = 0; i < oldCages.Length; i++)
+			{
+				if ((oldCages[i] == CageType.Black && newCages[i] == CageType.Point) || oldCages[i] == CageType.Point && newCages[i] == CageType.Black)
+				{
+					//throw new Exception(method);
+				}
+			}
+		}
 		#endregion
 	}
 }

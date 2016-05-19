@@ -9,8 +9,9 @@
     mc:Ignorable="d">
 	<Page.Resources>
 		<converters:CageTypeToColorConverter x:Key="CageColorConverter"/>
+		<converters:TupleToNumberConverter x:Key="TupleToNumberConverter"/>
 	</Page.Resources>
-	<Grid Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
+	<Grid Background="#FFDEDEDE">
 		<Grid>
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="Auto"/>
@@ -20,7 +21,6 @@
 				<RowDefinition Height="Auto"/>
 				<RowDefinition/>
 			</Grid.RowDefinitions>
-
 			<GridView HorizontalAlignment="Left" 
 					  VerticalAlignment="Top" 
 					  Grid.Column="1" 
@@ -52,6 +52,7 @@
 					  ScrollViewer.VerticalScrollBarVisibility="Disabled" 
 					  ScrollViewer.HorizontalScrollBarVisibility="Auto"
 					  HorizontalAlignment="Left"
+					  Foreground="#FF1B1B1B"
 					  VerticalAlignment="Top"
 					  ScrollViewer.HorizontalScrollMode="Enabled" 
 					  ScrollViewer.VerticalScrollMode="Disabled">
@@ -100,7 +101,7 @@
 				</ListView.ItemContainerStyle>
 			</ListView>
 
-			<ListView Grid.Row="1" ItemsSource="{Binding LeftNumbers}">
+			<ListView Grid.Row="1" Foreground="#FF1B1B1B" ItemsSource="{Binding LeftNumbers}">
 				<ListView.ItemContainerStyle>
 					<Style TargetType="ListViewItem">
 						<Setter Property="Margin" Value="0,0,0,0"/>

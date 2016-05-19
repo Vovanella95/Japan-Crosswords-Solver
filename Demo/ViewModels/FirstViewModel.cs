@@ -1,6 +1,9 @@
 using JapanCrossworkSolver;
 using JapanCrossworkSolver.Models;
 using MvvmCross.Core.ViewModels;
+using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Demo.ViewModels
@@ -74,13 +77,34 @@ namespace Demo.ViewModels
 			}
 		}
 
+
 		public FirstViewModel()
 		{
-			TopNumbers = new int[][] { new[] { 2, 2 }, new[] { 2, 2 }, new[] { 3, 5 }, new[] { 5, 2, 2 }, new[] { 2, 5, 1 }, new[] { 1, 2, 1, 1 }, new[] { 1, 1, 2, 2, 1 }, new[] { 1, 6, 1 }, new[] { 2, 2, 3, 1 }, new[] { 1, 2, 1, 1, 2 }, new[] { 3, 1, 2 }, new[] { 1, 1, 4 }, new[] { 4, 2 }, };
-			LeftNumbers = new int[][] { new[] { 5 }, new[] { 2, 4 }, new[] { 1, 1, 1 }, new[] { 1, 3, 2 }, new[] { 5, 2 }, new[] { 5, 2 }, new[] { 4 }, new[] { 2, 2, 2 }, new[] { 1, 4, 1 }, new[] { 1, 4, 1 }, new[] { 1, 4, 2 }, new[] { 1, 1 }, new[] { 4, 4 }, new[] { 13 }, };
 
-			//TopNumbers = new int[][] { new[] { 10 }, new[] { 3,2 }, new[] { 2, 1 }, new[] { 1,4 }, new[] { 1,1,5 }, new[] { 1,2,2 }, new[] { 1,6 }, new[] { 8 }, new[] { 6 }, new[] { 4 }, };
-			//LeftNumbers = new int[][] { new[] { 7 }, new[] { 3,1 }, new[] { 2,1,2 }, new[] { 1,3 }, new[] { 1,4 }, new[] { 1,6 }, new[] { 1,7 }, new[] { 1,2,3 }, new[] { 2,5 }, new[] { 7 }, };
+			// Elephant
+			//TopNumbers = new int[][] { new[] { 3 }, new[] { 3 }, new[] { 9 }, new[] { 10 }, new[] { 7 }, new[] { 3, 3 }, new[] { 2, 2, 2 }, new[] { 7, 2 }, new[] { 6, 5 }, new[] { 7, 4 }, new[] { 4, 2 }, new[] { 8 }, new[] { 2 }, new[] { 1 }, };
+			//LeftNumbers = new int[][] { new[] { 3 }, new[] { 5 }, new[] { 9 }, new[] { 4, 5 }, new[] { 5, 5 }, new[] { 4, 4, 1 }, new[] { 5, 2, 3 }, new[] { 1, 4, 1, 2 }, new[] { 1, 8, 1 }, new[] { 2, 5, 2 }, new[] { 2, 2, 2 }, new[] { 2, 2 }, };
+
+			// Terapod
+			//TopNumbers = new int[][] { new[] { 5 }, new[] { 1, 4 }, new[] { 1, 2 }, new[] { 2, 1, 1 }, new[] { 2, 4 }, new[] { 1, 6 }, new[] { 1, 1, 8 }, new[] { 3, 11 }, new[] { 17 }, new[] { 18 }, new[] { 17 }, new[] { 3, 11 }, new[] { 1, 1, 8 }, new[] { 6 }, new[] { 4 }, new[] { 6 }, new[] { 7 }, new[] { 3 }, new[] { 1 }, };
+			//LeftNumbers = new int[][] { new[] { 1 }, new[] { 3 }, new[] { 3 }, new[] { 5 }, new[] { 5 }, new[] { 7 }, new[] { 3 }, new[] { 4, 7, 1 }, new[] { 1, 2, 5, 3 }, new[] { 1, 2, 5, 2 }, new[] { 1, 1, 7, 2 }, new[] { 2, 9, 2 }, new[] { 1, 13 }, new[] { 1, 13 }, new[] { 16 }, new[] { 1, 12 }, new[] { 9 }, new[] { 7 }, };
+
+			//Fan
+			//TopNumbers = new int[][] { new[] { 4 }, new[] { 6 }, new[] { 8 }, new[] { 8 }, new[] { 2, 8, 2 }, new[] { 6, 6, 3 }, new[] { 6, 3, 4, 3 }, new[] { 6, 1, 1, 2, 3 }, new[] { 6, 5, 6 }, new[] { 6, 5, 7 }, new[] { 7, 3, 2, 3 }, new[] { 7, 4, 3 }, new[] { 5, 8, 3 }, new[] { 3, 8, 2 }, new[] { 8 }, new[] { 8 }, new[] { 6 }, new[] { 3 }, };
+			//LeftNumbers = new int[][] { new[] { 5 }, new[] { 8 }, new[] { 9 }, new[] { 10 }, new[] { 10 }, new[] { 8 }, new[] { 2, 2 }, new[] { 3 }, new[] { 1, 3, 4 }, new[] { 3, 1, 3, 5 }, new[] { 4, 1, 3, 6 }, new[] { 6, 3, 7 }, new[] { 7, 8 }, new[] { 8, 7 }, new[] { 8, 6 }, new[] { 6, 1, 4 }, new[] { 4, 2 }, new[] { 2 }, new[] { 2 }, new[] { 8 }, new[] { 10 }, new[] { 10 }, };
+
+			//Duck
+			//TopNumbers = new int[][] { new[] { 2, 2 }, new[] { 2, 2 }, new[] { 3, 5 }, new[] { 5, 2, 2 }, new[] { 2, 5, 1 }, new[] { 1, 2, 1, 1 }, new[] { 1, 1, 2, 2, 1 }, new[] { 1, 6, 1 }, new[] { 2, 2, 3, 1 }, new[] { 1, 2, 1, 1, 2 }, new[] { 3, 1, 2 }, new[] { 1, 1, 4 }, new[] { 4, 2 }, };
+			//LeftNumbers = new int[][] { new[] { 5 }, new[] { 2, 4 }, new[] { 1, 1, 1 }, new[] { 1, 3, 2 }, new[] { 5, 2 }, new[] { 5, 2 }, new[] { 4 }, new[] { 2, 2, 2 }, new[] { 1, 4, 1 }, new[] { 1, 4, 1 }, new[] { 1, 4, 2 }, new[] { 1, 1 }, new[] { 4, 4 }, new[] { 13 }, };
+
+			//Cube
+			//TopNumbers = new int[][] { new[] { 12 }, new[] { 2, 1 }, new[] { 3, 2, 2, 2, 1 }, new[] { 2, 1, 2, 2, 2, 1 }, new[] { 2, 1, 1 }, new[] { 3, 1 }, new[] { 3, 1 }, new[] { 4, 1 }, new[] { 4, 2, 2, 2, 1 }, new[] { 2, 1, 2, 2, 2, 1 }, new[] { 2, 1, 1 }, new[] { 14 }, new[] { 9, 2 }, new[] { 13 }, new[] { 2, 8 }, new[] { 11 } };
+			//LeftNumbers = new int[][] { new[] { 2, 4, 3 }, new[] { 14 }, new[] { 2, 4, 3, 1 }, new[] { 14, 1 }, new[] { 1, 5 }, new[] { 1, 2, 2, 5 }, new[] { 1, 2, 2, 5 }, new[] { 1, 5 }, new[] { 1, 2, 2, 5 }, new[] { 1, 2, 2, 5 }, new[] { 1, 1, 3 }, new[] { 1, 2, 2, 1, 2 }, new[] { 1, 2, 2, 3 }, new[] { 1, 2 }, new[] { 12 }, };
+
+
+			//Cow
+			TopNumbers = new int[][] { new[] { 2, 3 }, new[] { 1, 4, 2 }, new[] { 3, 1, 4 }, new[] { 1, 1, 4 }, new[] { 1, 1, 1, 2 }, new[] { 1, 1, 2 }, new[] { 3, 1 }, new[] { 1, 1, 1, 1 }, new[] { 3, 3, 1 }, new[] { 1, 4 }, };
+			LeftNumbers = new int[][] { new[] { 3, 3 }, new[] { 1, 1, 1, 1 }, new[] { 1, 5, 1 }, new[] { 1, 2 }, new[] { 2, 1, 1 }, new[] { 1, 2 }, new[] { 5, 2 }, new[] { 1, 2, 1, 2 }, new[] { 6, 1, 1 }, new[] { 4, 1, 2 }, };
 
 			_solver = new CrosswordSolver(TopNumbers, LeftNumbers);
 
