@@ -64,6 +64,8 @@ namespace JapanCrossworkSolver
 			Methods.Add(Method0010);
 			Methods.Add(Method0011);
 			Methods.Add(Method0012);
+			Methods.Add(Method0013);
+			Methods.Add(Method0014);
 		}
 
 		public void MakeStep()
@@ -226,6 +228,7 @@ namespace JapanCrossworkSolver
 
 			var newCages = cages.Skip(startIndex).Take(cages.Length - (startIndex + endIndex));
 			var newNumbers = numbers.Skip(startNumbers).Take(numbers.Length - (startNumbers + endNumbers));
+
 
 			var result = method(newCages.ToArray(), newNumbers.ToArray());
 			result = method(result.Reverse().ToArray(), newNumbers.Reverse().ToArray()).Reverse().ToArray();
@@ -549,6 +552,7 @@ namespace JapanCrossworkSolver
 			return cages;
 		}
 
+		// ставит точку если точка, фиг знает как объяснить
 		public CageType[] Method0012(CageType[] cages, int[] numbers)
 		{
 			if (cages.Length == 0 || numbers.Length == 0) return cages;
@@ -558,6 +562,105 @@ namespace JapanCrossworkSolver
 			}
 			return cages;
 		}
+
+		// если добавление черной клетки даст число клеток больше числа - то там точка
+		public CageType[] Method0013(CageType[] cages, int[] numbers)
+		{
+			if (cages.Length == 0 || numbers.Length == 0) return cages;
+
+			var maxNum = numbers.Max();
+
+			for (int i = 0; i < cages.Length; i++)
+			{
+				if (cages[i] == CageType.White)
+				{
+					cages[i] = CageType.Black;
+					var maxCages = MaxValueOnLine(cages);
+					if (maxCages > maxNum)
+					{
+						cages[i] = CageType.Point;
+					}
+					else
+					{
+						cages[i] = CageType.White;
+					}
+				}
+			}
+			return cages;
+		}
+
+		// метод типа как первый, но учитывает точки ( возможны ошибки, я хз)
+		public CageType[] Method0014(CageType[] cages, int[] numbers)
+		{
+			if (numbers.Length == 4 && numbers[0] == 5)
+			{
+
+			}
+
+			var indexes = new int[numbers.Length, 2];
+
+
+			var numCounter = 0;
+			for (int i = 0; i < cages.Length && numCounter < numbers.Length; i++)
+			{
+				if (cages[i] != CageType.Point)
+				{
+					var isPlacing = true;
+					for (int j = 0; j < numbers[numCounter]; j++)
+					{
+						if (cages[i + j] == CageType.Point)
+						{
+							isPlacing = false;
+						}
+					}
+					if (isPlacing)
+					{
+						indexes[numCounter, 1] = i + numbers[numCounter] - 1;
+						i += numbers[numCounter];
+						numCounter++;
+					}
+				}
+			}
+
+			numbers = numbers.Reverse().ToArray();
+
+			numCounter = 0;
+			for (int i = cages.Length - 1; i >= 0 && numCounter < numbers.Length; i--)
+			{
+				if (cages[i] != CageType.Point)
+				{
+					var isPlacing = true;
+					for (int j = 0; j < numbers[numCounter]; j++)
+					{
+						if (cages[i - j] == CageType.Point)
+						{
+							isPlacing = false;
+						}
+					}
+					if (isPlacing)
+					{
+						indexes[indexes.GetLength(0) - numCounter - 1, 0] = i - numbers[numCounter] + 1;
+						i -= numbers[numCounter];
+						numCounter++;
+					}
+				}
+			}
+
+
+			for (int i = 0; i < indexes.GetLength(0); i++)
+			{
+				for (int j = indexes[i, 0]; j <= indexes[i, 1]; j++)
+				{
+					cages[j] = CageType.Black;
+				}
+			}
+
+
+
+
+			return cages;
+		}
+
 
 		#region HelpFunctions
 
