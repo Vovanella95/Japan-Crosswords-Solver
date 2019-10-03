@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace JapanCrossworkSolver
 {
@@ -65,15 +63,13 @@ namespace JapanCrossworkSolver
 			Methods.Add(Method0011);
 			Methods.Add(Method0012);
 			Methods.Add(Method0013);
-			Methods.Add(Method0014);
+			//Methods.Add(Method0014);
 		}
 
 		public void MakeStep()
 		{
 			var a = TopNumbers.Sum(w => w.Sum());
 			var b = LeftNumbers.Sum(w => w.Sum());
-
-
 
 			for (int i = 0; i < Height; i++)
 			{
@@ -396,6 +392,11 @@ namespace JapanCrossworkSolver
 		// ставит точки после чисел по краям
 		public CageType[] Method0006(CageType[] cages, int[] numbers)
 		{
+			if (numbers.Length == 0)
+			{
+				return cages;
+			}
+
 			if (numbers[0] < cages.Length && cages[0] == CageType.Black)
 			{
 				cages[numbers[0]] = CageType.Point;
@@ -608,7 +609,7 @@ namespace JapanCrossworkSolver
 					var isPlacing = true;
 					for (int j = 0; j < numbers[numCounter]; j++)
 					{
-						if (cages[i + j] == CageType.Point)
+						if (i + j < cages.Length && cages[i + j] == CageType.Point)
 						{
 							isPlacing = false;
 						}
@@ -651,12 +652,12 @@ namespace JapanCrossworkSolver
 			{
 				for (int j = indexes[i, 0]; j <= indexes[i, 1]; j++)
 				{
-					cages[j] = CageType.Black;
+					if (j < cages.Length)
+					{
+						cages[j] = CageType.Black;
+					}
 				}
 			}
-
-
-
 
 			return cages;
 		}
